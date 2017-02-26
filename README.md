@@ -22,15 +22,33 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+This gem allows to sign in, sign up, invite a friend or like a page on Facebook.
 
-## Development
+Creating an account on Facebook:
+```ruby
+scraper = NopioScraper::Facebook.new('piotr.jaworski@nopio.com', 'your_password')
+scraper.create_account(first_name: 'Piotr', last_name: 'Jaworski', sex: 'male', day: '1', month: 'Jan', year: '1993')
+```
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+Loging to Facebook:
+```ruby
+scraper = NopioScraper::Facebook.new('piotr.jaworski@nopio.com', 'your_password')
+scraper.login
+```
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+Liking a page:
+```ruby
+scraper = NopioScraper::Facebook.new('piotr.jaworski@nopio.com', 'your_password')
+scraper.like_page('nopio')
+```
+
+Invitng a friend:
+```ruby
+scraper = NopioScraper::Facebook.new('piotr.jaworski@nopio.com', 'your_password')
+scraper.invite_friend('Piotr Jaworski')
+```
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/nopio_scraper. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at https://github.com/nopio/nopio_scraper. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 

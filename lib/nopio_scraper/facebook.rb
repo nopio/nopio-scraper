@@ -2,7 +2,7 @@ require 'nopio_scraper/class_extensions'
 
 module NopioScraper
   class Facebook
-    REGISTRATION_INPUTS = %i(first_name last_name email password day month year sex)
+    REGISTRATION_INPUTS = %i(first_name last_name day month year sex)
     EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i
 
     attr_accessor :email, :password, :logged_in
@@ -13,6 +13,8 @@ module NopioScraper
     end
 
     def login
+      return true if @logged_in
+
       browser.goto('https://www.facebook.com/')
       form = browser.form(id: 'login_form')
 
@@ -28,28 +30,21 @@ module NopioScraper
     end
 
     def search(query)
-      raise unless main_page?
+      login unless logged_in
 
       form = browser.form(action: '/search/web/direct_search.php')
       form.inputs.last.to_subtype.clear
+      sleep(0.5)
       form.inputs.last.to_subtype.set(query)
       form.button(type: 'submit').click
     end
 
     def like_page(name)
-      login unless logged_in
-
-      search(name)
-      browser.link(href: "/search/pages/?q=#{name}&ref=top_filter").click
-      browser.button(class_name: 'PageLikeButton').click
+      perform(name, name: 'pages', class_name: 'PageLikeButton')
     end
 
     def invite_friend(name)
-      login unless logged_in
-
-      search(name)
-      browser.link(href: "/search/people/?q=#{name}&ref=top_filter").click
-      browser.button(class_name: 'FriendRequestAdd').click
+      perform(name, name: 'people', class_name: 'FriendRequestAdd')
     end
 
     def create_account(**args)
@@ -59,9 +54,9 @@ module NopioScraper
       form = browser.form(id: 'reg')
       form.text_field(name: 'firstname').set(args[:first_name])
       form.text_field(name: 'lastname').set(args[:last_name])
-      form.text_field(name: 'reg_email__').set(args[:email])
-      form.text_field(name: 'reg_email_confirmation__').set(args[:email])
-      form.text_field(name: 'reg_passwd__').set(args[:password])
+      form.text_field(name: 'reg_email__').set(email)
+      form.text_field(name: 'reg_email_confirmation__').set(email)
+      form.text_field(name: 'reg_passwd__').set(password)
       form.select_list(name: 'birthday_day').select(args[:day])
       form.select_list(name: 'birthday_month').select(args[:month])
       form.select_list(name: 'birthday_year').select(args[:year])
@@ -77,6 +72,15 @@ module NopioScraper
 
     def sex(value)
       value.downcase.strip == 'male' ? '2' : '1'
+    end
+
+    def perform(query, options = {})
+      login unless logged_in
+
+      search(query)
+      browser.link(href: "/search/#{options[:name]}/?q=#{query}&ref=top_filter").click
+      button = browser.button(class_name: options[:class_name])
+      button.click if button.exist?
     end
 
     def main_page?
